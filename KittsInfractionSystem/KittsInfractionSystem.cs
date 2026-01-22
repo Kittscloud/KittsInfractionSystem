@@ -10,7 +10,7 @@ using System;
 
 namespace KittsInfractionSystem;
 
-internal class KittsInfractionSystem : Plugin
+public class KittsInfractionSystem : Plugin
 {
     public static Plugin Instance { get; private set; }
 
@@ -18,7 +18,7 @@ internal class KittsInfractionSystem : Plugin
     public override string Author { get; } = "Kittscloud";
     public override string Description { get; } = "";
     public override LoadPriority Priority { get; } = LoadPriority.Highest;
-    public override Version Version { get; } = new Version(0, 1, 0);
+    public override Version Version { get; } = new Version(0, 1, 1);
     public override Version RequiredApiVersion { get; } = new Version(LabApiProperties.CompiledVersion);
 
     public static Config Config { get; set; }
