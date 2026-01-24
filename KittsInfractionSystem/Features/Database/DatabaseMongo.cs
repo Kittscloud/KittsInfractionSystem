@@ -1,4 +1,5 @@
-﻿using KittsInfractionSystem.Features.Models;
+﻿#if MONGODB
+using KittsInfractionSystem.Features.Models;
 using MongoDB.Driver;
 using System.Collections.Generic;
 
@@ -12,9 +13,9 @@ internal static class DatabaseMongo
 
     public static void Init()
     {
-        _client = new MongoClient(KittsInfractionSystem.Config.MongoDB_uri);
-        _db = _client.GetDatabase(KittsInfractionSystem.Config.MongoDB_name);
-        _infractionDataCollection = _db.GetCollection<InfractionData>("InfractionData");
+        _client = new MongoClient(KittsInfractionSystem.Config.MongoDBURI);
+        _db = _client.GetDatabase(KittsInfractionSystem.Config.MongoDBName);
+        _infractionDataCollection = _db.GetCollection<InfractionData>(KittsInfractionSystem.Config.MongoDBCollectionName);
 
         CreateIndexes();
     }
@@ -43,6 +44,8 @@ internal static class DatabaseMongo
     {
         return _infractionDataCollection
             .Find(i => i.OffenderId == offenderId)
-            .ToList();
+            .ToList()
+            .AsReadOnly();
     }
 }
+#endif

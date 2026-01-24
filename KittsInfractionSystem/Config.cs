@@ -16,23 +16,25 @@ public class Config
     [Description("Sends debug logs to console")]
     public bool Debug { get; set; } = false;
 
+#if MONGODB
     /// <summary>
-    /// MongoDB URI if using database.
+    /// MongoDB URI.
     /// </summary>
-    [Description("MongoDB URI if using database")]
-    public string MongoDB_uri { get; set; } = "mongodb://username:password@ip:port/";
+    [Description("MongoDB URI")]
+    public string MongoDBURI { get; set; } = "mongodb://username:password@ip:port/";
 
     /// <summary>
-    /// MongoDB name if using database.
+    /// MongoDB name.
     /// </summary>
-    [Description("MongoDB name if using database")]
-    public string MongoDB_name { get; set; } = "KittsInfractionSystem";
+    [Description("MongoDB name")]
+    public string MongoDBName { get; set; } = "KittsInfractionSystem";
 
     /// <summary>
-    /// Should save to MongoDB, saves to JSON if flase, does not migrate data.
+    /// MongoDB collection name.
     /// </summary>
-    [Description("Should save to MongoDB, saves to JSON if flase, does not migrate data")]
-    public bool UseMongoDB { get; set; } = false;
+    [Description("MongoDB collection name")]
+    public string MongoDBCollectionName { get; set; } = "InfractionData";
+#endif
 
     /// <summary>
     /// Permission for warn command.

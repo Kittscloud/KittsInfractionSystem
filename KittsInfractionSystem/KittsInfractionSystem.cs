@@ -17,8 +17,8 @@ public class KittsInfractionSystem : Plugin
     public override string Name { get; } = "KittsInfractionSystem";
     public override string Author { get; } = "Kittscloud";
     public override string Description { get; } = "";
-    public override LoadPriority Priority { get; } = LoadPriority.Highest;
-    public override Version Version { get; } = new Version(0, 1, 1);
+    public override LoadPriority Priority { get; } = LoadPriority.High;
+    public override Version Version { get; } = new Version(0, 2, 0);
     public override Version RequiredApiVersion { get; } = new Version(LabApiProperties.CompiledVersion);
 
     public static Config Config { get; set; }
@@ -37,10 +37,11 @@ public class KittsInfractionSystem : Plugin
         if (!Config.IsEnabled)
             return;
 
-        if (Config.UseMongoDB)
-            DatabaseMongo.Init();
-        else
-            DatabaseJson.Init();
+#if MONGODB
+        DatabaseMongo.Init();
+#else
+        DatabaseJson.Init();
+#endif
 
         InfractionManager.InitTempMutes();
 
@@ -63,10 +64,11 @@ public class KittsInfractionSystem : Plugin
         _infractionEvents = null;
         _mutingEvents = null;
 
-        if (Config.UseMongoDB)
-            DatabaseMongo.Stop();
-        else
-            DatabaseJson.Stop();
+#if MONGODB
+        DatabaseMongo.Stop();
+#else
+        DatabaseJson.Stop();
+#endif
 
         Instance = null;
 

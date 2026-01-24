@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 namespace KittsInfractionSystem.Features;
 
@@ -15,6 +16,7 @@ public class InfractionManager
     private static string TempMuteFilePath =>
         Path.Combine(KittsInfractionSystem.Instance.GetConfigDirectory().FullName, "TempMutes.json");
 
+    #region Adding Infraction
     /// <summary>
     /// Action called when an infraction is added.
     /// </summary>
@@ -50,120 +52,157 @@ public class InfractionManager
             Duration = duration
         };
 
-        if (KittsInfractionSystem.Config.UseMongoDB)
+#if MONGODB
             DatabaseMongo.AddInfraction(infraction);
-        else
+#else
             DatabaseJson.AddInfraction(infraction);
+#endif
 
         InfractionAdded?.Invoke(infraction);
 
         Log.Debug("Database.AddInfraction", $"{moderatorName} ({moderatorId}) added infraction for {offenderName} ({offenderId})");
     }
+    #endregion
 
+    #region Getting Infractions
     /// <summary>
-    /// Gets a list of offenderId's infractions.  
+    /// Gets a list of offenderId's <see cref="InfractionData"/>.  
     /// </summary>
     /// <param name="offenderId">The offender's Id.</param>
     /// <returns></returns>
     public static IReadOnlyList<InfractionData> GetInfractions(string offenderId)
     {
-        if (KittsInfractionSystem.Config.UseMongoDB)
-            return DatabaseMongo.GetInfractions(offenderId);
-        else
-            return DatabaseJson.GetInfractions(offenderId);
+#if MONGODB
+        return DatabaseMongo.GetInfractions(offenderId);
+#else
+        return DatabaseJson.GetInfractions(offenderId);
+#endif
+    }
+
+    /// <summary>
+    /// Gets a pretty string of target <see cref="InfractionData"/>.
+    /// </summary>
+    /// <param name="infractionData">Target <see cref="InfractionData"/>.</param>
+    /// <returns>Pretty string of Target <see cref="InfractionData"/></returns>
+    public static string GetPrettyInfraction(InfractionData infractionData)
+    {
+        string duration = infractionData.Duration.HasValue
+            ? FormatDuration(infractionData.Duration.Value)
+            : "Permanent";
+
+        string reason = string.IsNullOrWhiteSpace(infractionData.ReasonAndEvidence)
+            ? "No reason provided"
+            : infractionData.ReasonAndEvidence;
+
+        return $"{infractionData.Type} | Issued: {infractionData.Issued:yyyy-MM-dd HH:mm} | " +
+            $"Moderator: {infractionData.ModeratorName} ({infractionData.ModeratorId}) | " +
+            $"Duration: {duration} | Reason: {reason}";
+    }
+
+    /// <summary>
+    /// Gets a pretty string from a list of <see cref="InfractionData"/>s.
+    /// </summary>
+    /// <param name="infractionDatas">List of <see cref="InfractionData"/>s.</param>
+    /// <returns>Pretty string from the list of <see cref="InfractionData"/>s</returns>
+    public static string GetPrettyInfractions(List<InfractionData> infractionDatas)
+    {
+        if (infractionDatas.Count == 0)
+            return "No infractions found.";
+
+        StringBuilder sb = new();
+        int index = 1;
+
+        foreach (InfractionData i in infractionDatas)
+        {
+            sb.AppendLine($"[{index}] {GetPrettyInfraction(i)}");
+            index++;
+        }
+
+        return sb.ToString().TrimEnd();
     }
 
     /// <summary>
     /// Gets a pretty string of offenderId's infractions.
     /// </summary>
     /// <param name="offenderId">The offender's Id.</param>
-    /// <returns></returns>
-    public static string GetPrettyInfractions(string offenderId)
-    {
-        IReadOnlyList<InfractionData> infractions = GetInfractions(offenderId);
+    /// <returns>Pretty string of offender's infractions</returns>
+    public static string GetPrettyInfractions(string offenderId) =>
+        GetPrettyInfractions([.. GetInfractions(offenderId)]);
 
-        if (infractions.Count == 0)
-            return "No infractions found.";
-
-        var sb = new System.Text.StringBuilder();
-        int index = 1;
-
-        foreach (InfractionData i in infractions)
-        {
-            string duration = i.Duration.HasValue
-                ? FormatDuration(i.Duration.Value)
-                : "Permanent";
-
-            string reason = string.IsNullOrWhiteSpace(i.ReasonAndEvidence)
-                ? "No reason provided"
-                : i.ReasonAndEvidence;
-
-            sb.AppendLine(
-                $"[{index}] {i.Type} | Issued: {i.Issued:yyyy-MM-dd HH:mm} | " +
-                $"Moderator: {i.ModeratorName} ({i.ModeratorId}) | " +
-                $"Duration: {duration} | Reason: {reason}"
-            );
-
-            index++;
-        }
-
-        return sb.ToString().TrimEnd();
-    }
-    
     /// <summary>
-     /// Gets a pretty coloured string of offenderId's infractions.
-     /// </summary>
-     /// <param name="offenderId">The offender's Id.</param>
-     /// <returns></returns>
-    public static string GetPrettyColouredInfractions(string offenderId)
+    /// Gets a pretty coloured string of target <see cref="InfractionData"/>.
+    /// </summary>
+    /// <param name="infractionData">Target <see cref="InfractionData"/>.</param>
+    /// <returns>Pretty coloured string of Target <see cref="InfractionData"/></returns>
+    public static string GetPrettyColouredInfraction(InfractionData infractionData)
     {
-        IReadOnlyList<InfractionData> infractions = GetInfractions(offenderId);
-
-        if (infractions.Count == 0)
-            return "<color=green>No infractions found.</color>";
-
-        var sb = new System.Text.StringBuilder();
-        int index = 1;
-
-        foreach (InfractionData i in infractions)
-        {
-            string duration = i.Duration.HasValue
-                ? FormatDuration(i.Duration.Value)
+        string duration = infractionData.Duration.HasValue
+                ? FormatDuration(infractionData.Duration.Value)
                 : "<color=red>Permanent</color>";
 
-            string reason = string.IsNullOrWhiteSpace(i.ReasonAndEvidence)
-                ? "<color=grey>No reason provided</color>"
-                : $"<color=white>{i.ReasonAndEvidence}</color>";
+        string reason = string.IsNullOrWhiteSpace(infractionData.ReasonAndEvidence)
+            ? "<color=grey>No reason provided</color>"
+            : $"<color=white>{infractionData.ReasonAndEvidence}</color>";
 
-            sb.AppendLine(
-                $"<color=#AAAAAA>[{index}]</color> " +
-                $"<color=yellow>{i.Type}</color> | " +
-                $"<color=#00FFFF>{i.Issued:yyyy-MM-dd HH:mm}</color> | " +
-                $"<color=#FFA500>{i.ModeratorName}</color> <color=grey>({i.ModeratorId})</color> | " +
-                $"<color=#FF5555>{duration}</color> | " +
-                $"<color=#00FF00>Reason:</color> {reason}"
-            );
+        return $"<color=yellow>{infractionData.Type}</color> | " +
+            $"<color=#00FFFF>{infractionData.Issued:yyyy-MM-dd HH:mm}</color> | " +
+            $"<color=#FFA500>{infractionData.ModeratorName}</color> <color=grey>({infractionData.ModeratorId})</color> | " +
+            $"<color=#FF5555>{duration}</color> | " +
+            $"<color=#00FF00>Reason:</color> {reason}";
+    }
 
+    /// <summary>
+    /// Gets a pretty coloured string from a list of <see cref="InfractionData"/>s.
+    /// </summary>
+    /// <param name="infractionDatas">List of <see cref="InfractionData"/>s.</param>
+    /// <returns>Pretty coloured string from the list of <see cref="InfractionData"/>s</returns>
+    public static string GetPrettyColouredInfractions(List<InfractionData> infractionDatas)
+    {
+        if (infractionDatas.Count == 0)
+            return "<color=green>No infractions found.</color>";
+
+        StringBuilder sb = new();
+        int index = 1;
+
+        foreach (InfractionData i in infractionDatas)
+        {
+            sb.AppendLine($"<color=#AAAAAA>[{index}]</color> {GetPrettyColouredInfraction(i)}");
             index++;
         }
 
         return sb.ToString().TrimEnd();
     }
+
+    /// <summary>
+    /// Gets a pretty coloured string of offenderId's infractions.
+    /// </summary>
+    /// <param name="offenderId">The offender's Id.</param>
+    /// <returns>Pretty coloured string of offender's infractions</returns>
+    public static string GetPrettyColouredInfractions(string offenderId) =>
+        GetPrettyColouredInfractions([.. GetInfractions(offenderId)]);
 
     private static string FormatDuration(TimeSpan duration)
     {
-        if (duration.TotalDays >= 1)
-            return $"{(int)duration.TotalDays} day(s)";
+        if (duration <= TimeSpan.Zero)
+            return "0 seconds";
 
-        if (duration.TotalHours >= 1)
-            return $"{(int)duration.TotalHours} hour(s)";
+        int days = duration.Days;
+        int hours = duration.Hours;
+        int minutes = duration.Minutes;
+        int seconds = duration.Seconds;
 
-        if (duration.TotalMinutes >= 1)
-            return $"{(int)duration.TotalMinutes} minute(s)";
+        List<string> parts = [];
 
-        return $"{(int)duration.TotalSeconds} second(s)";
+        if (days > 0) parts.Add($"{days} day(s)");
+        if (hours > 0) parts.Add($"{hours} hour(s)");
+        if (minutes > 0) parts.Add($"{minutes} minute(s)");
+        if (seconds > 0) parts.Add($"{seconds} second(s)");
+
+        return string.Join(", ", parts);
     }
+    #endregion
 
+    #region TempMuting
     internal static void InitTempMutes()
     {
         EnsureTempMuteFile();
@@ -245,4 +284,5 @@ public class InfractionManager
             Log.Debug("InfractionManager.RemoveTempMute", $"{userId} is no longer muted.");
         }
     }
+    #endregion
 }

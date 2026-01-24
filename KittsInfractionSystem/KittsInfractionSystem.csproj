@@ -11,6 +11,7 @@
 
         <LangVersion>latest</LangVersion>
         <PlatformTarget>x64</PlatformTarget>
+		<Configurations>Release;Release-MongoDB</Configurations>
 
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
 		<GenerateAssemblyInfo>false</GenerateAssemblyInfo>
@@ -19,38 +20,42 @@
 		
 		<NoWarn>1591</NoWarn>
     </PropertyGroup>
-  
-	<!-- Debug | x64 -->
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x64' ">
-        <DebugSymbols>true</DebugSymbols>
-        <DebugType>full</DebugType>
-        <Optimize>false</Optimize>
-        <OutputPath>bin\Debug\</OutputPath>
-        <DefineConstants>DEBUG;TRACE</DefineConstants>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
-    </PropertyGroup>
 
     <!-- Release | x64 -->
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
-        <DebugType>pdbonly</DebugType>
-        <Optimize>true</Optimize>
-        <OutputPath>bin\Release\</OutputPath>
-        <DefineConstants>TRACE</DefineConstants>
-        <ErrorReport>prompt</ErrorReport>
-        <WarningLevel>4</WarningLevel>
-    </PropertyGroup>
-  
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x64' ">
+		<DebugType>pdbonly</DebugType>
+		<Optimize>true</Optimize>
+		<OutputPath>bin\Release\</OutputPath>
+		<DefineConstants>TRACE;</DefineConstants>
+		<ErrorReport>prompt</ErrorReport>
+		<WarningLevel>4</WarningLevel>
+	</PropertyGroup>
+	
+	<!-- Release | x64 | MongoDB -->
+	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release-MongoDB|x64' ">
+		<DebugType>pdbonly</DebugType>
+		<Optimize>true</Optimize>
+		<OutputPath>bin\Release-MongoDB\</OutputPath>
+		<AssemblyName>$(AssemblyName)-MongoDB</AssemblyName>
+		<DefineConstants>TRACE;MONGODB;</DefineConstants>
+		<ErrorReport>prompt</ErrorReport>
+		<WarningLevel>4</WarningLevel>
+	</PropertyGroup>
+	
 	<!-- NuGet Packages -->
     <ItemGroup>
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 		<PackageReference Include="Northwood.LabAPI" Version="1.1.5" />
-		<PackageReference Include="MongoDB.Driver" Version="3.6.0" />
+
 		<PackageReference Include="PolySharp" Version="1.15.0">
-			<PrivateAssets>all</PrivateAssets>
+		<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
-    </ItemGroup>
+	</ItemGroup>
+
+	<ItemGroup Condition=" '$(Configuration)' == 'Release-MongoDB' ">
+		<PackageReference Include="MongoDB.Driver" Version="3.6.0" />
+	</ItemGroup>
 	
 	<!-- References -->
     <ItemGroup>

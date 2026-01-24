@@ -1,7 +1,6 @@
 ﻿using CommandSystem;
 using LabApi.Features.Permissions;
 using LabApi.Features.Wrappers;
-using MongoDB.Driver;
 using System;
 using System.Linq;
 
@@ -17,13 +16,7 @@ internal sealed class ViewInfractionsCommand : ICommand
 
     public bool Execute(ArraySegment<string> arguments, ICommandSender sender, out string response)
     {
-        if (!Player.TryGet(sender, out Player player))
-        {
-            response = "<color=red>You must be a player to run this command.</color>";
-            return false;
-        }
-
-        if (!player.HasPermissions(KittsInfractionSystem.Config.WarningPermission))
+        if (!sender.HasPermissions(KittsInfractionSystem.Config.WarningPermission))
         {
             response = "<color=red>You do not have the required permissions.</color>";
             return false;

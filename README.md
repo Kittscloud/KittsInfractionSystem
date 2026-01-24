@@ -11,10 +11,17 @@
 `KittsInfractionSystem` is a tool that adds warning, tempmuting and infraction tracking to `SCP Secret Laboratory` using `LabAPI`.
 
 ## Consider Supporting?
-If you enjoy this project and would like to support future development, I would greatly appreciate it if you considered donating via my [`Ko-Fi`](https://ko-fi.com/kittscloud)
+If you enjoy this project and would like to support future development, I would greatly appreciate it if you considered donating via my [`Ko-Fi`](https://ko-fi.com/kittscloud).
 
 ## How to use KittsInfractionSystem:
+There are two options when it comes to installing `KittsInfractionSystem`, normal and MongoDB.
+The difference between the two is that normal stores everything in a `.JSON` and MongoDB stores everything in a Mongo database. 
+
 To install `KittsInfractionSystem` on your server, you will need:
+- `Newtonsoft.Json` `v13.0.4` or later.
+- `KittsInfractionSystem` latest verion.
+
+To install `KittsInfractionSystem` with MonogDB on your server, you will need:
 - `DnsClient` `v1.6.1` or later.
 - `Microsoft.Extensions.Logging.Abstractions` `v2.0.0` or later.
 - `MognoDB.Bson` `v3.6.0` or later.
@@ -25,10 +32,10 @@ To install `KittsInfractionSystem` on your server, you will need:
 All of these files can be found in the [`latest release`](https://github.com/Kittscloud/KittsInfractionSystem/releases/latest).
 
 Once you have these:
-- Place `DnsClient.dll` in the `dependencies` folder.
-- Place `Microsoft.Extensions.Logging.Abstractions.dll` in the `dependencies` folder.
-- Place `MognoDB.Bson.dll` in the `dependencies` folder.
-- Place `MognoDB.Driver.dll` in the `dependencies` folder.
+- Place `DnsClient.dll` in the `dependencies` folder, if applicable.
+- Place `Microsoft.Extensions.Logging.Abstractions.dll` in the `dependencies` folder, if applicable.
+- Place `MognoDB.Bson.dll` in the `dependencies` folder, if applicable.
+- Place `MognoDB.Driver.dll` in the `dependencies` folder, if applicable.
 - Place `Newtonsoft.Json.dll` in the `dependencies` folder.
 - Place `KittsInfractionSystem.dll` in the `plugins` folder.
 
@@ -39,9 +46,9 @@ Run the server and you're set!
 |----------------------------|----------|------------------------------------------------------------------------|------------------------------------------|
 | `IsEnabled`                | `bool`   | Is plugin enabled.                                                     | `true`                                   |
 | `Debug`                    | `bool`   | Sends debug logs to console.                                           | `false`                                  |
-| `MongoDB_uri`              | `string` | MongoDB URI if using database.                                         | `"mongodb://username:password@ip:port/"` |
-| `MongoDB_name`             | `string` | MongoDB name if using database.                                        | `KittsInfractionSystem`                  |
-| `UseMongoDB`               | `bool`   | Should save to MongoDB, saves to JSON if flase, does not migrate data. | `false`                                  |
+| `MongoDBURI`               | `string` | MongoDB URI.                                                           | `"mongodb://username:password@ip:port/"` |
+| `MongoDBName`              | `string` | MongoDB name.                                                          | `KittsInfractionSystem`                  |
+| `MongoDBCollectionName`    | `string` | MongoDB collection name if using database.                             | `InfractionData`                         |
 | `WarningPermission`        | `string` | Permission for warn command.                                           | `"kts.warn"`                             |
 | `TempMutePermission`       | `string` | Permission for temp muting command.                                    | `"kts.tempmute"`                         |
 | `ViewInfractionPermission` | `string` | Permission for viewing infraction command.                             | `"kts.viewinfractions"`                  |
@@ -52,12 +59,26 @@ Run the server and you're set!
 is_enabled: true
 # Sends debug logs to console
 debug: false
-# MongoDB URI if using database
-mongo_d_b_uri: mongodb://username:password@ip:port/
-# MongoDB name if using database
+# Permission for warn command
+warning_permission: kts.warn
+# Permission for temp muting command
+temp_mute_permission: kts.tempmute
+# Permission for viewing infraction command
+view_infraction_permission: kts.viewinfractions
+```
+
+### MongoDB YML Config File
+```yml
+# Is plugin enabled
+is_enabled: true
+# Sends debug logs to console
+debug: false
+# MongoDB URI
+mongo_d_b_u_r_i: mongodb://username:password@ip:port/
+# MongoDB name
 mongo_d_b_name: KittsInfractionSystem
-# Should save to MongoDB, saves to JSON if flase, does not migrate data
-use_mongo_d_b: false
+# MongoDB collection name
+mongo_d_b_collection_name: InfractionData
 # Permission for warn command
 warning_permission: kts.warn
 # Permission for temp muting command
@@ -72,17 +93,22 @@ To install in your project, simply reference the `KittsInfractionSystem.dll` fil
 `KittsInfractionSystem.dll` is mainly a tool and does not have much to offer when referencing, the most important part is the `OnInfractionAdded` action which is called when an infraction is added.
 
 ### InfractionManager Class
-| Parameter / Method                                     | Type / Return Type              | Description                                           |
-|--------------------------------------------------------|---------------------------------|-------------------------------------------------------|
-| `OnInfractionAdded`                                    | `Action<InfractionData>`        | `Action` called when an infraction is added.          |
-| `AddInfraction(7 params)`                              | `void`                          | Adds a new infraction to the database.                |
-| `GetInfractions(string offenderId)`                    | `IReadOnlyList<InfractionData>` | Gets a list of offenderId's infractions.              |
-| `GetPrettyInfractions(string offenderId)`              | `string`                        | Gets a pretty string of offenderId's infractions.     |
-| `AddTempMute(string userId, TimeSpan duration)`        | `void`                          | Temporarily mute a player.                            |
-| `TryGetTempMute(string userId, out DateTime unmuteAt)` | `bool`                          | Trys to get the `DateTime` at which the user unmutes. |
-| `RemoveTempMute(string userId)`                        | `void`                          | Removes a user from being temporarily muted.          |
+| Parameter / Method                                   | Type / Return Type              | Description                                                     |
+|------------------------------------------------------|---------------------------------|-----------------------------------------------------------------|
+| `OnInfractionAdded`                                  | `Action<InfractionData>`        | `Action` called when an infraction is added.                    |
+| `AddInfraction(7 params)`                            | `void`                          | Adds a new infraction to the database.                          |
+| `GetInfractions(string)`                             | `IReadOnlyList<InfractionData>` | Gets a list of offenderId's infractions.                        |
+| `GetPrettyInfraction(InfractionData)`                | `string`                        | Gets a pretty string of target `InfractionData`.                |
+| `GetPrettyInfractions(List<InfractionData>)`         | `string`                        | Gets a pretty string from a list of `InfractionDatas`.          |
+| `GetPrettyInfractions(string)`                       | `string`                        | Gets a pretty string of offenderId's infractions.               |
+| `GetPrettyColouredInfraction(InfractionData)`        | `string`                        | Gets a pretty coloured string of target `InfractionData`.       |
+| `GetPrettyColouredInfractions(List<InfractionData>)` | `string`                        | Gets a pretty coloured string from a list of `InfractionDatas`. |
+| `GetPrettyColouredInfractions(string)`               | `string`                        | Gets a pretty coloured string of offenderId's infractions.      |
+| `AddTempMute(string, TimeSpan)`                      | `void`                          | Temporarily mute a player.                                      |
+| `TryGetTempMute(string, out DateTime)`               | `bool`                          | Trys to get the `DateTime` at which the user unmutes.           |
+| `RemoveTempMute(string)`                             | `void`                          | Removes a user from being temporarily muted.                    |
 
-I have decided to not include an exmaple as it's VERY easy to use, just attach you own function to the action as shwon below
+I have decided to not include an exmaple as it's VERY easy to use, just attach your own function to the action as shown below
 
 ```cssharp
 public void OnInfractionAdded(InfractionData data)
