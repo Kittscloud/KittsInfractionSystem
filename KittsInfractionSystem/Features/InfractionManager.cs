@@ -1,21 +1,22 @@
-﻿using KittsInfractionSystem.Features.Database;
+﻿using CustomPlayerEffects;
+using KittsInfractionSystem.Features.Database;
 using KittsInfractionSystem.Features.Enums;
 using KittsInfractionSystem.Features.Models;
+using LabApi.Features.Enums;
+using LabApi.Features.Wrappers;
 using LabApi.Loader;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+using UnityEngine;
 
 namespace KittsInfractionSystem.Features;
 
-public class InfractionManager
+public static class InfractionManager
 {
-    private static Dictionary<string, DateTime> _tempMute = [];
-    private static string TempMuteFilePath =>
-        Path.Combine(KittsInfractionSystem.Instance.GetConfigDirectory().FullName, "TempMutes.json");
-
     #region Adding Infraction
     /// <summary>
     /// Action called when an infraction is added.
@@ -55,7 +56,7 @@ public class InfractionManager
 #if MONGODB
             DatabaseMongo.AddInfraction(infraction);
 #else
-            DatabaseJson.AddInfraction(infraction);
+        DatabaseJson.AddInfraction(infraction);
 #endif
 
         InfractionAdded?.Invoke(infraction);
@@ -203,6 +204,13 @@ public class InfractionManager
     #endregion
 
     #region TempMuting
+    /// <summary>
+    /// Contains all users temp muted and when they get unmuted.
+    /// </summary>
+    public static Dictionary<string, DateTime> TempMutes { get; internal set; } = [];
+    private static string TempMuteFilePath =>
+        Path.Combine(KittsInfractionSystem.Instance.GetConfigDirectory().FullName, "TempMutes.json");
+
     internal static void InitTempMutes()
     {
         EnsureTempMuteFile();
@@ -213,7 +221,7 @@ public class InfractionManager
     {
         try
         {
-            File.WriteAllText(TempMuteFilePath, JsonConvert.SerializeObject(_tempMute, Formatting.Indented));
+            File.WriteAllText(TempMuteFilePath, JsonConvert.SerializeObject(TempMutes, Formatting.Indented));
         }
         catch (Exception e)
         {
@@ -239,7 +247,7 @@ public class InfractionManager
             var json = File.ReadAllText(TempMuteFilePath);
             Dictionary<string, DateTime> tempMenu = JsonConvert.DeserializeObject<Dictionary<string, DateTime>>(File.ReadAllText(TempMuteFilePath));
 
-            _tempMute = tempMenu;
+            TempMutes = tempMenu;
         }
         catch (Exception e)
         {
@@ -257,7 +265,7 @@ public class InfractionManager
     {
         DateTime unmuteAt = DateTime.Now + duration;
 
-        _tempMute[userId] = unmuteAt;
+        TempMutes[userId] = unmuteAt;
         SaveTempMutes();
         Log.Debug("InfractionManager.AddTempMute", $"Temp muted {userId} until {unmuteAt}");
     }
@@ -269,7 +277,7 @@ public class InfractionManager
     /// <param name="unmuteAt">The <see cref="DateTime"/> at which the user unmutes.</param>
     /// <returns>If the user is temporarily muted.</returns>
     public static bool TryGetTempMute(string userId, out DateTime unmuteAt) =>
-        _tempMute.TryGetValue(userId, out unmuteAt);
+        TempMutes.TryGetValue(userId, out unmuteAt);
 
     /// <summary>
     /// Removes a user from being temporarily muted.
@@ -277,12 +285,82 @@ public class InfractionManager
     /// <param name="userId">User's Id to unmute.</param>
     public static void RemoveTempMute(string userId)
     {
-        if (_tempMute.Remove(userId))
+        if (TempMutes.Remove(userId))
         {
             SaveTempMutes();
 
             Log.Debug("InfractionManager.RemoveTempMute", $"{userId} is no longer muted.");
         }
+    }
+    #endregion
+
+    #region Jailing
+    /// <summary>
+    /// Contains all jailed players with their <see cref="JailData"/>.
+    /// </summary>
+    public static Dictionary<int, JailData> JailedPlayers { get; internal set; } = [];
+
+    /// <summary>
+    /// Jails a player to the tower.
+    /// </summary>
+    /// <param name="player"><see cref="Player"/> to jail.</param>
+    /// <returns>Whether the action completed.</returns>
+    public static bool TryJail(this Player player)
+    {
+        if (JailedPlayers.TryGetValue(player.PlayerId, out JailData _))
+            return false;
+
+        JailedPlayers[player.PlayerId] = new(
+            player.Role,
+            player.Position,
+            [.. player.Items.Select(item => item.Type)],
+            new Dictionary<ItemType, ushort>(player.Ammo),
+            [.. player.ActiveEffects]
+        );
+
+        player.SetRole(PlayerRoles.RoleTypeId.Tutorial, flags: PlayerRoles.RoleSpawnFlags.All);
+        player.IsGodModeEnabled = true;
+
+        return true;
+    }
+
+    /// <summary>
+    /// Unjails a player from the tower, restoring data.
+    /// </summary>
+    /// <param name="player"><see cref="Player"/> to unjail.</param>
+    /// <returns>Whether the action completed.</returns>
+    public static bool TryUnjail(this Player player)
+    {
+        if (!JailedPlayers.TryGetValue(player.PlayerId, out JailData jailData))
+            return false;
+
+        if (Warhead.IsDetonated && player.Zone != MapGeneration.FacilityZone.Surface)
+        {
+            Transform tranform = Door.List.FirstOrDefault(d => d.DoorName == DoorName.SurfaceEscapeFinal).Transform;
+
+            Vector3 vector = tranform.position + Vector3.up;
+            vector += tranform.forward * 0.35f;
+
+            player.Position = vector;
+        }
+        else
+            player.Position = jailData.Position;
+
+        player.SetRole(jailData.Role, flags: PlayerRoles.RoleSpawnFlags.None);
+        player.IsGodModeEnabled = false;
+
+        foreach (ItemType item in jailData.Items)
+            player.AddItem(item);
+
+        foreach (KeyValuePair<ItemType, ushort> ammo in jailData.Ammo)
+            player.AddAmmo(ammo.Key, ammo.Value);
+
+        foreach (StatusEffectBase effect in jailData.Effects)
+            player.EnableEffect(effect, intensity: effect.Intensity, duration: effect.Duration);
+
+        JailedPlayers.Remove(player.PlayerId);
+
+        return true;
     }
     #endregion
 }

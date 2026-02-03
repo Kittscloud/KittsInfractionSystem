@@ -18,14 +18,15 @@ public class KittsInfractionSystem : Plugin
     public override string Author { get; } = "Kittscloud";
     public override string Description { get; } = "";
     public override LoadPriority Priority { get; } = LoadPriority.High;
-    public override Version Version { get; } = new Version(0, 2, 0);
+    public override Version Version { get; } = new Version(0, 3, 0);
     public override Version RequiredApiVersion { get; } = new Version(LabApiProperties.CompiledVersion);
 
     public static Config Config { get; set; }
     private bool _errorLoadingConfig = false;
 
-    private InfractionEvents _infractionEvents;
-    private MutingEvents _mutingEvents;
+    private readonly InfractionEvents _infractionEvents = new();
+    private readonly JailEvents _jailEvents = new();
+    private readonly MutingEvents _mutingEvents = new();
 
     public override void Enable()
     {
@@ -45,10 +46,8 @@ public class KittsInfractionSystem : Plugin
 
         InfractionManager.InitTempMutes();
 
-        _infractionEvents = new();
-        _mutingEvents = new();
-
         CustomHandlersManager.RegisterEventsHandler(_infractionEvents);
+        CustomHandlersManager.RegisterEventsHandler(_jailEvents);
         CustomHandlersManager.RegisterEventsHandler(_mutingEvents);
 
         Log.Send($"Successfully Enabled {Name}@{Version}", colour: ConsoleColor.Green);
@@ -59,10 +58,8 @@ public class KittsInfractionSystem : Plugin
         this.SaveConfig(Config, "config.yml");
 
         CustomHandlersManager.UnregisterEventsHandler(_infractionEvents);
+        CustomHandlersManager.UnregisterEventsHandler(_jailEvents);
         CustomHandlersManager.UnregisterEventsHandler(_mutingEvents);
-
-        _infractionEvents = null;
-        _mutingEvents = null;
 
 #if MONGODB
         DatabaseMongo.Stop();

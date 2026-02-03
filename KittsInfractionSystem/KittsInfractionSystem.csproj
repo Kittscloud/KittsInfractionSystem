@@ -46,7 +46,6 @@
     <ItemGroup>
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
 		<PackageReference Include="Northwood.LabAPI" Version="1.1.5" />
-
 		<PackageReference Include="PolySharp" Version="1.15.0">
 		<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

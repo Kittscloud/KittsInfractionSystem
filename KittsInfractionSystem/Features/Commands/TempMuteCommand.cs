@@ -47,7 +47,7 @@ internal sealed class TempMuteCommand : ICommand
                 "<color=#00FFFF>Examples: 10s, 1minute, 2h, 1day</color>";
             return false;
         }
-        
+
         if (targetPlayer.IsMuted || InfractionManager.TryGetTempMute(targetPlayer.UserId, out DateTime _))
         {
             response = "<color=red>Player is already muted.</color>";

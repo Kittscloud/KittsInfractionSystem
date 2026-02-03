@@ -52,6 +52,7 @@ Run the server and you're set!
 | `WarningPermission`        | `string` | Permission for warn command.                                           | `"kts.warn"`                             |
 | `TempMutePermission`       | `string` | Permission for temp muting command.                                    | `"kts.tempmute"`                         |
 | `ViewInfractionPermission` | `string` | Permission for viewing infraction command.                             | `"kts.viewinfractions"`                  |
+| `JailPermission`           | `string` | Permission for jail and unjail command.                                | `"kts.jail"`                             |
 
 ### Default YML Config File
 ```yml
@@ -65,6 +66,8 @@ warning_permission: kts.warn
 temp_mute_permission: kts.tempmute
 # Permission for viewing infraction command
 view_infraction_permission: kts.viewinfractions
+# Permission for jail and unjail command
+jail_permissions: kts.jail
 ```
 
 ### MongoDB YML Config File
@@ -85,6 +88,8 @@ warning_permission: kts.warn
 temp_mute_permission: kts.tempmute
 # Permission for viewing infraction command
 view_infraction_permission: kts.viewinfractions
+# Permission for jail and unjail command
+jail_permissions: kts.jail
 ```
 
 ### Want to use in your own project?
@@ -104,9 +109,13 @@ To install in your project, simply reference the `KittsInfractionSystem.dll` fil
 | `GetPrettyColouredInfraction(InfractionData)`        | `string`                        | Gets a pretty coloured string of target `InfractionData`.       |
 | `GetPrettyColouredInfractions(List<InfractionData>)` | `string`                        | Gets a pretty coloured string from a list of `InfractionDatas`. |
 | `GetPrettyColouredInfractions(string)`               | `string`                        | Gets a pretty coloured string of offenderId's infractions.      |
+| `TempMutes`                                          | `Dictionary<string, DateTime>`  | Contains all users temp muted and when they get unmuted.        |
 | `AddTempMute(string, TimeSpan)`                      | `void`                          | Temporarily mute a player.                                      |
 | `TryGetTempMute(string, out DateTime)`               | `bool`                          | Trys to get the `DateTime` at which the user unmutes.           |
 | `RemoveTempMute(string)`                             | `void`                          | Removes a user from being temporarily muted.                    |
+| `JailedPlayers`                                      | `Dictionary<string, JailData>`  | Contains all jailed players with their `JailData`.              |
+| `TryJail(Player)`                                    | `bool`                          | Jails a player to the tower.                                    |
+| `TryUnjail(Player)`                                  | `bool`                          | Unjails a player from the tower, restoring data.                |
 
 I have decided to not include an exmaple as it's VERY easy to use, just attach your own function to the action as shown below
 
@@ -120,6 +129,8 @@ public void OnInfractionAdded(InfractionData data)
 // Make sure to attach the function to the action somewhere
 InfractionManager.InfractionAdded += OnInfractionAdded;
 ```
+
+Or you can use the functions that the `InfractionManager` has to offer.
 
 ## Found a bug or have feedback?
 If you have found a bug please make an issue on GitHub or the quickest way is to message me on discord at `kittscloud`.

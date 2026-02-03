@@ -53,4 +53,10 @@ public class Config
     /// </summary>
     [Description("Permission for viewing infraction command")]
     public string ViewInfractionPermission { get; set; } = "kts.viewinfractions";
+
+    /// <summary>
+    /// Permission for jail and unjail command.
+    /// </summary>
+    [Description("Permission for jail and unjail command")]
+    public string JailPermission { get; set; } = "kts.jail";
 }
