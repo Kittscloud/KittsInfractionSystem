@@ -1,20 +1,12 @@
 # KittsInfractionSystem
 *LabAPI Infraction Tool*
 
-[![License](https://img.shields.io/badge/License-AGPL%20v3.0-blue?style=for-the-badge)](https://github.com/Kittscloud/KittsInfractionSystem/blob/main/LICENSE)
-[![Downloads](https://img.shields.io/github/downloads/Kittscloud/KittsInfractionSystem/total?style=for-the-badge)](https://github.com/Kittscloud/ServerSpecificsSyncer/releases/latest)
-[![GitHub release](https://img.shields.io/github/v/release/Kittscloud/KittsInfractionSystem?style=for-the-badge)](https://github.com/Kittscloud/KittsInfractionSystem/releases/latest)
-[![](https://img.shields.io/badge/.NET-4.8.1-512BD4?logo=dotnet&logoColor=fff&style=for-the-badge)](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net481)
-[![GitHub stars](https://img.shields.io/github/stars/Kittscloud/KittsInfractionSystem?style=for-the-badge)](https://github.com/Kittscloud/KittsInfractionSystem/stargazers)
-[![GitHub issues](https://img.shields.io/github/issues/Kittscloud/KittsInfractionSystem?style=for-the-badge)](https://github.com/Kittscloud/KittsInfractionSystem/issues)
+[![License](https://img.shields.io/badge/License-AGPL%20v3.0-blue?style=for-the-badge)](https://github.com/Kittscloud/KittsInfractionSystem/blob/main/LICENSE) [![Downloads](https://img.shields.io/github/downloads/Kittscloud/KittsInfractionSystem/total?style=for-the-badge)](https://github.com/Kittscloud/ServerSpecificsSyncer/releases/latest) [![GitHub release](https://img.shields.io/github/v/release/Kittscloud/KittsInfractionSystem?style=for-the-badge)](https://github.com/Kittscloud/KittsInfractionSystem/releases/latest) [![](https://img.shields.io/badge/.NET-4.8.1-512BD4?logo=dotnet&logoColor=fff&style=for-the-badge)](https://dotnet.microsoft.com/en-us/download/dotnet-framework/net481) [![GitHub stars](https://img.shields.io/github/stars/Kittscloud/KittsInfractionSystem?style=for-the-badge)](https://github.com/Kittscloud/KittsInfractionSystem/stargazers) [![GitHub issues](https://img.shields.io/github/issues/Kittscloud/KittsInfractionSystem?style=for-the-badge)](https://github.com/Kittscloud/KittsInfractionSystem/issues)
 
 `KittsInfractionSystem` is a tool that adds warning, tempmuting and infraction tracking to `SCP Secret Laboratory` using `LabAPI`.
 
 ## Consider Supporting?
-If you enjoy this project and would like to support future development, I would greatly appreciate it if you considered donating via my [`Ko-Fi`](https://ko-fi.com/kittscloud).
-
-## NuGet Package
-The [`NuGet Package`] offers easy intergation of this tool.
+If you enjoy this project and would like to support future development, I would greatly appreciate it if you considered donating via my [Ko-Fi](https://ko-fi.com/kittscloud).
 
 ## How to use KittsInfractionSystem:
 There are two options when it comes to installing `KittsInfractionSystem`, normal and MongoDB.
@@ -32,7 +24,7 @@ To install `KittsInfractionSystem` with MonogDB on your server, you will need:
 - `Newtonsoft.Json` `v13.0.4` or later.
 - `KittsInfractionSystem` latest verion.
 
-All of these files can be found in the [`latest release`](https://github.com/Kittscloud/KittsInfractionSystem/releases/latest).
+All of these files can be found in the [latest release](https://github.com/Kittscloud/KittsInfractionSystem/releases/latest).
 
 Once you have these:
 - Place `DnsClient.dll` in the `dependencies` folder, if applicable.
@@ -96,14 +88,14 @@ jail_permissions: kts.jail
 ```
 
 ### Want to use in your own project?
-To install in your project, simply reference the `KittsInfractionSystem.dll` file, found in the [`latest release`](https://github.com/Kittscloud/KittsMenuSystem/releases/latest).
+To install in your project, simply reference the `KittsInfractionSystem.dll` file, found in the [latest release](https://github.com/Kittscloud/KittsMenuSystem/releases/latest).
 
-`KittsInfractionSystem.dll` is mainly a tool and does not have much to offer when referencing, the most important part is the `OnInfractionAdded` action which is called when an infraction is added.
+`KittsInfractionSystem.dll` is mainly a tool and does not have much to offer when referencing, the most important part is the `InfractionAdded` action which is called when an infraction is added.
 
 ### InfractionManager Class
 | Parameter / Method                                   | Type / Return Type              | Description                                                     |
 |------------------------------------------------------|---------------------------------|-----------------------------------------------------------------|
-| `OnInfractionAdded`                                  | `Action<InfractionData>`        | `Action` called when an infraction is added.                    |
+| `InfractionAdded`                                    | `Action<InfractionData>`        | `Action` called when an infraction is added.                    |
 | `AddInfraction(7 params)`                            | `void`                          | Adds a new infraction to the database.                          |
 | `GetInfractions(string)`                             | `IReadOnlyList<InfractionData>` | Gets a list of offenderId's infractions.                        |
 | `GetPrettyInfraction(InfractionData)`                | `string`                        | Gets a pretty string of target `InfractionData`.                |

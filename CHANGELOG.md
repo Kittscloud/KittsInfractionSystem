@@ -1,5 +1,9 @@
 # KittsInfractionSystem Changelog
 
+## Version 0.3.1
+- Added `NuGet Package` - Can now use the NuGet package.
+- Updated `InfractionType` enum - Now inherits a `ushort`.
+
 ## Version 0.3.0
 - Added `Jail` command - Used for jailing players.
 - Added `Unjail` command - Used for unjailing players.
