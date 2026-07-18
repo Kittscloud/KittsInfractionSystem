@@ -54,7 +54,7 @@ public static class InfractionManager
         };
 
 #if MONGODB
-            DatabaseMongo.AddInfraction(infraction);
+        DatabaseMongo.AddInfraction(infraction);
 #else
         DatabaseJson.AddInfraction(infraction);
 #endif

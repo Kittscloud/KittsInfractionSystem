@@ -25,10 +25,10 @@
 
 	<PropertyGroup>
 		<Title>Kitts Infraction System</Title>
-		<Authors>Kittscloud</Authors>
-		<Version>0.3.1</Version>
-		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<Description>KittsInfractionSystem is a tool that adds warning, tempmuting and infraction tracking to SCP Secret Laboratory using LabAPI.</Description>
+		<Authors>Kittscloud</Authors>
+		<Version>0.3.4</Version>
+		<GeneratePackageOnBuild>True</GeneratePackageOnBuild>
 		<PackageReadmeFile>READMENUGET.md</PackageReadmeFile>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
 		<PackageTags>infractions;moderation;admin-tools;server-management;rules;ban;kick;warning;game-server;SCP-SL;player-management;punishments;reporting;cheat-detection;plugin;admin-plugin;player-moderation</PackageTags>
@@ -37,8 +37,10 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-		<None Include="..\LICENSE"> <Pack>True</Pack><PackagePath>\</PackagePath> </None>
+	    <None Include="..\LICENSE"> <Pack>True</Pack><PackagePath>\</PackagePath> </None>
 		<None Include="..\READMENUGET.md"> <Pack>True</Pack><PackagePath>\</PackagePath> </None>
+		<None Include="..\README.md"> <Pack>True</Pack><PackagePath>\</PackagePath> </None>
+		<None Include="..\CHANGELOG.md"> <Pack>True</Pack><PackagePath>\</PackagePath> </None>
 	</ItemGroup>
 
     <!-- Release | x64 -->
@@ -65,19 +67,17 @@
 	<!-- NuGet Packages -->
     <ItemGroup>
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-		<PackageReference Include="Northwood.LabAPI" Version="1.1.5" />
-		<PackageReference Include="PolySharp" Version="1.15.0" PrivateAssets="all" IncludeAssets="runtime; build; native; contentfiles; analyzers; buildtransitive" />
-		
-		<PackageReference Condition=" '$(Configuration)' == 'Release-MongoDB' " Include="MongoDB.Driver" Version="3.6.0" />
+		<PackageReference Include="Northwood.LabAPI" Version="1.1.7" />
+		<PackageReference Include="PolySharp" Version="1.16.0" PrivateAssets="all" />
+
+		<PackageReference Condition=" '$(Configuration)' == 'Release-MongoDB' " Include="MongoDB.Driver" Version="3.10.0" />
 	</ItemGroup>
 	
 	<!-- References -->
     <ItemGroup>
-        <Reference Include="Assembly-CSharp-firstpass" HintPath="..\..\Local Admin Server\SCPSL_Data\Managed\Assembly-CSharp-firstpass.dll" />
-		<Reference Include="Assembly-CSharp" HintPath="..\..\Local Admin Server\SCPSL_Data\Managed\Assembly-CSharp-Publicized.dll" />
-		<Reference Include="CommandSystem.Core" HintPath="..\..\Local Admin Server\SCPSL_Data\Managed\CommandSystem.Core.dll" />
-		<Reference Include="Mirror" HintPath="..\..\Local Admin Server\SCPSL_Data\Managed\Mirror-Publicized.dll" />
-		<Reference Include="NorthwoodLib" HintPath="..\..\Local Admin Server\SCPSL_Data\Managed\NorthwoodLib.dll" />
-		<Reference Include="UnityEngine.CoreModule" HintPath="..\..\Local Admin Server\SCPSL_Data\Managed\UnityEngine.CoreModule.dll" />
+		<Reference Include="Assembly-CSharp" HintPath="..\..\$Resources\Local Admin Server\SCPSL_Data\Managed\Assembly-CSharp.dll" />
+		<Reference Include="CommandSystem.Core" HintPath="..\..\$Resources\Local Admin Server\SCPSL_Data\Managed\CommandSystem.Core.dll" />
+		<Reference Include="Mirror" HintPath="..\..\$Resources\Local Admin Server\SCPSL_Data\Managed\Mirror.dll" />
+		<Reference Include="UnityEngine.CoreModule" HintPath="..\..\$Resources\Local Admin Server\SCPSL_Data\Managed\UnityEngine.CoreModule.dll" />
     </ItemGroup>
  </Project>

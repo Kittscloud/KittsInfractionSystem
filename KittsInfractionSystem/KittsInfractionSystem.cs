@@ -18,7 +18,7 @@ public class KittsInfractionSystem : Plugin
     public override string Author { get; } = "Kittscloud";
     public override string Description { get; } = "";
     public override LoadPriority Priority { get; } = LoadPriority.High;
-    public override Version Version { get; } = new Version(0, 3, 1);
+    public override Version Version { get; } = new Version(0, 3, 4);
     public override Version RequiredApiVersion { get; } = new Version(LabApiProperties.CompiledVersion);
 
     public static Config Config { get; set; }
@@ -34,9 +34,6 @@ public class KittsInfractionSystem : Plugin
 
         if (_errorLoadingConfig)
             Log.Error("Invalid config file, check config file or generate a new one.");
-
-        if (!Config.IsEnabled)
-            return;
 
 #if MONGODB
         DatabaseMongo.Init();

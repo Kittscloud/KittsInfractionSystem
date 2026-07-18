@@ -1,4 +1,5 @@
-﻿using KittsInfractionSystem.Features.Models;
+﻿#if !MONGODB
+using KittsInfractionSystem.Features.Models;
 using LabApi.Loader;
 using Newtonsoft.Json;
 using System;
@@ -76,3 +77,4 @@ internal static class DatabaseJson
             .AsReadOnly();
     }
 }
+#endif
